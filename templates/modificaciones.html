@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FJKDEV | Modificaciones</title>
+    <link href="../static/assets/dashboard.css" rel="stylesheet">
+</head>
+<body class="page-enter">
+    <div class="blobs-bg">
+        <img src="../static/assets/img/blob.svg" alt="blob" class="blob-bg blob-bg--1">
+        <img src="../static/assets/img/blob.svg" alt="blob" class="blob-bg blob-bg--2">
+    </div>
+
+    <nav class="topbar">
+        <div class="logo-section">
+            <img src="../static/assets/img/Logo_Practica.png" alt="FJKDEV" class="nav-logo">
+            <h2>Sistema de Gestión</h2>
+        </div>
+        <div class="user-info">
+            <span>Usuario: {{ nombre }}</span>
+            <a href="{{ url_for('logout') }}" class="logout-btn">Cerrar Sesión</a>
+        </div>
+    </nav>
+
+    <div class="dashboard-container">
+        <main class="main-content">
+            <div class="header-container-flex">
+                <div class="header-content">
+                    <h1 id="titulo-gestion">Modificar Registro: {{ tabla }}</h1>
+                    <p id="subtitulo-gestion">Ingrese la Llave Primaria (PK) para buscar el registro. Solo podrán editarse los campos permitidos.</p>
+                </div>
+                <button type="button" class="menu-back-btn hidden" id="btn-regresar-menu">
+                    <span class="back-icon">&#8592;</span> Volver al Menú Panel
+                </button>
+            </div>
+
+            <div id="hub-view" class="hub-grid">
+                <div class="table-card" data-tabla="Clientes">
+                    <div class="icon-placeholder">👥</div>
+                    <h3>Clientes</h3>
+                </div>
+                <div class="table-card" data-tabla="Asociaciones">
+                    <div class="icon-placeholder">🏢</div>
+                    <h3>Asociaciones</h3>
+                </div>
+                <div class="table-card" data-tabla="Actividades">
+                    <div class="icon-placeholder">📅</div>
+                    <h3>Actividades</h3>
+                </div>
+            </div>
+
+            <div id="form-view" class="hidden">
+                <div class="crud-form" id="form-modificacion">
+                    
+                    <div class="form-grid">
+                        <div class="input-group">
+                            <input type="text" id="id-pk" name="id_pk" class="input-field" placeholder=" " required autocomplete="off" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                            <label for="id-pk" class="floating-label">Valor de la PK (ID)</label>
+                        </div>
+                        <div class="input-group" style="display: flex; align-items: center;">
+                            <button type="button" class="submit-btn" id="btn-buscar-pk" style="width: 100%; height: 46px;">Buscar Registro</button>
+                        </div>
+                    </div>
+
+                    <div id="edicion-container" style="display: none; margin-top: 20px; border-top: 1px solid var(--border-color); padding-top: 24px;">
+                        <h3 style="margin-bottom: 16px; font-size: 15px; color: var(--primary-color);">Registro encontrado. Seleccione un único campo para actualizar:</h3>
+                        <div class="form-grid">
+                            <div class="input-group">
+                                <select id="campo-mod" name="campo" class="input-field" required style="background: transparent; appearance: none; -webkit-appearance: none;">
+                                    <option value="" disabled selected hidden></option>
+                                    {% for col in columnas_edit %}
+                                    <option value="{{ col }}">{{ col.replace('_', ' ') }}</option>
+                                    {% endfor %}
+                                </select>
+                                <label for="campo-mod" class="floating-label">Campo a Modificar</label>
+                            </div>
+
+                            <div class="input-group">
+                                <input type="text" id="valor-anterior" class="input-field" disabled placeholder=" " style="background-color: #f8f9fa; color: var(--text-muted); cursor: not-allowed; border-color: var(--border-color);">
+                                <label for="valor-anterior" class="floating-label">Valor Anterior</label>
+                            </div>
+
+                            <div class="input-group">
+                                <input type="text" id="nuevo-valor" name="valor" class="input-field" placeholder=" " required autocomplete="off">
+                                <label for="nuevo-valor" class="floating-label">Nuevo Valor</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="mensaje-exito" style="display: none; margin-top: 20px; padding: 16px; background: rgba(0, 200, 83, 0.1); border: 1px solid var(--success-color); color: var(--success-color); border-radius: 8px; font-weight: 600;"></div>
+                    <div id="mensaje-error" style="display: none; margin-top: 20px; padding: 16px; background: #fff5f5; border: 1px solid var(--error-color); color: var(--error-color); border-radius: 8px; font-weight: 600;"></div>
+
+                    <div class="form-actions" style="margin-top: 20px;">
+                        <button type="button" class="cancel-btn" id="btn-cancelar">Regresar</button>
+                        <button type="button" class="submit-btn" id="btn-actualizar" style="display: none;">Actualizar Registro</button>
+                        <button type="button" class="submit-btn" id="btn-otra-modificacion" style="display: none; background: var(--success-color);">Hacer otra modificación</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const params = new URLSearchParams(window.location.search);
+            const tieneParametroTabla = params.has('tabla');
+            const tablaActual = params.get('tabla') || '';
+            
+            const hubView = document.getElementById('hub-view');
+            const formView = document.getElementById('form-view');
+            const tituloGestion = document.getElementById('titulo-gestion');
+            const subtituloGestion = document.getElementById('subtitulo-gestion');
+            const btnRegresarMenu = document.getElementById('btn-regresar-menu');
+            
+            const tarjetasHub = document.querySelectorAll('.table-card');
+
+            const inputIdPK = document.getElementById('id-pk');
+            const btnBuscarPK = document.getElementById('btn-buscar-pk');
+            
+            const edicionContainer = document.getElementById('edicion-container');
+            const selectCampo = document.getElementById('campo-mod');
+            const inputValorAnterior = document.getElementById('valor-anterior');
+            const inputNuevoValor = document.getElementById('nuevo-valor');
+            const btnActualizar = document.getElementById('btn-actualizar');
+            const btnOtraModificacion = document.getElementById('btn-otra-modificacion');
+            
+            const mensajeExito = document.getElementById('mensaje-exito');
+            const mensajeError = document.getElementById('mensaje-error');
+
+            let registroEncontradoData = null;
+
+            const ocultarMensajes = () => {
+                mensajeExito.style.display = 'none';
+                mensajeError.style.display = 'none';
+                inputIdPK.style.borderColor = 'var(--border-color)';
+                selectCampo.style.borderColor = 'var(--border-color)';
+                inputNuevoValor.style.borderColor = 'var(--border-color)';
+                btnOtraModificacion.style.display = 'none';
+            };
+
+            if (tieneParametroTabla && tablaActual) {
+                hubView.classList.add('hidden');
+                formView.classList.remove('hidden');
+                btnRegresarMenu.classList.add('hidden');
+            } else {
+                hubView.classList.remove('hidden');
+                formView.classList.add('hidden');
+                btnRegresarMenu.classList.remove('hidden');
+                tituloGestion.textContent = 'Modificaciones del Sistema';
+                subtituloGestion.textContent = 'Seleccione la tabla autorizada en la que desea modificar un registro.';
+            }
+
+            const navegarATabla = (nombreTabla) => {
+                document.body.classList.remove('page-enter');
+                document.body.classList.add('page-leave');
+                setTimeout(() => {
+                    window.location.href = `/modificaciones?tabla=${nombreTabla}`;
+                }, 400);
+            };
+
+            tarjetasHub.forEach(tarjeta => {
+                tarjeta.addEventListener('click', function() {
+                    navegarATabla(this.getAttribute('data-tabla'));
+                });
+            });
+
+            if (btnRegresarMenu) {
+                btnRegresarMenu.addEventListener('click', () => {
+                    document.body.classList.remove('page-enter');
+                    document.body.classList.add('page-leave');
+                    setTimeout(() => {
+                        window.location.href = '/';
+                    }, 400);
+                });
+            }
+
+            const btnCancelar = document.getElementById('btn-cancelar');
+            if (btnCancelar) {
+                btnCancelar.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    document.body.classList.remove('page-enter');
+                    document.body.classList.add('page-leave');
+                    setTimeout(() => {
+                        window.location.href = '/modificaciones';
+                    }, 400);
+                });
+            }
+
+            const logoutBtn = document.querySelector('.logout-btn');
+            logoutBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                const url = this.getAttribute('href');
+                document.body.classList.remove('page-enter');
+                document.body.classList.add('page-leave');
+                setTimeout(() => {
+                    window.location.href = url;
+                }, 400);
+            });
+
+            if (btnOtraModificacion) {
+                btnOtraModificacion.addEventListener('click', () => {
+                    window.location.reload();
+                });
+            }
+
+            if (btnBuscarPK) {
+                btnBuscarPK.addEventListener('click', async () => {
+                    const idPK = inputIdPK.value.trim();
+                    ocultarMensajes();
+
+                    if (idPK === '') {
+                        inputIdPK.style.borderColor = 'var(--error-color)';
+                        mensajeError.textContent = 'Por favor, ingrese el valor numérico de la PK.';
+                        mensajeError.style.display = 'block';
+                        return;
+                    }
+
+                    btnBuscarPK.disabled = true;
+
+                    try {
+                        const response = await fetch('/api/buscar_pk', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ tabla: tablaActual, id_pk: idPK })
+                        });
+                        
+                        const data = await response.json();
+
+                        if (data.encontrado && data.registro) {
+                            registroEncontradoData = data.registro;
+                            
+                            edicionContainer.style.display = 'block';
+                            btnActualizar.style.display = 'block';
+                            inputIdPK.disabled = true;
+                            btnBuscarPK.style.display = 'none';
+                            
+                            selectCampo.value = '';
+                            inputValorAnterior.value = '';
+                            inputNuevoValor.value = '';
+                            
+                            mensajeExito.textContent = 'Registro encontrado. Seleccione un campo para ver su valor actual.';
+                            mensajeExito.style.display = 'block';
+                        } else {
+                            mensajeError.textContent = data.error || 'No se encontró ningún registro con esa PK.';
+                            mensajeError.style.display = 'block';
+                            inputIdPK.style.borderColor = 'var(--error-color)';
+                        }
+                    } catch (error) {
+                        mensajeError.textContent = 'Ocurrió un error de conexión al buscar la PK.';
+                        mensajeError.style.display = 'block';
+                    } finally {
+                        btnBuscarPK.disabled = false;
+                    }
+                });
+            }
+
+            if (selectCampo) {
+                selectCampo.addEventListener('change', function() {
+                    const campoElegido = this.value;
+                    if (registroEncontradoData && registroEncontradoData[campoElegido] !== undefined) {
+                        inputValorAnterior.value = registroEncontradoData[campoElegido];
+                    } else {
+                        inputValorAnterior.value = '';
+                    }
+                });
+            }
+
+            if (btnActualizar) {
+                btnActualizar.addEventListener('click', async () => {
+                    const idMod = inputIdPK.value.trim();
+                    const campoSeleccionado = selectCampo.value;
+                    const nuevoValor = inputNuevoValor.value.trim();
+                    const valorAnterior = inputValorAnterior.value;
+                    
+                    ocultarMensajes();
+                    let valid = true;
+
+                    if (!campoSeleccionado) {
+                        selectCampo.style.borderColor = 'var(--error-color)';
+                        valid = false;
+                    }
+                    if (nuevoValor === '') {
+                        inputNuevoValor.style.borderColor = 'var(--error-color)';
+                        valid = false;
+                    }
+
+                    if (!valid) {
+                        mensajeError.textContent = 'Por favor, seleccione el campo e ingrese el nuevo valor.';
+                        mensajeError.style.display = 'block';
+                        return;
+                    }
+
+                    btnActualizar.disabled = true;
+
+                    try {
+                        const response = await fetch('/api/actualizar', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                tabla: tablaActual,
+                                id_mod: idMod,
+                                campo: campoSeleccionado,
+                                valor: nuevoValor
+                            })
+                        });
+                        
+                        const data = await response.json();
+
+                        if (data.success) {
+                            mensajeExito.innerHTML = `
+                                <div style="font-size: 16px; margin-bottom: 10px; font-weight: 700;">¡Modificación Exitosa!</div>
+                                <div style="font-weight: normal; font-size: 14px; text-align: left; line-height: 1.6; background: rgba(0, 200, 83, 0.05); padding: 12px; border-radius: 6px; border: 1px solid rgba(0, 200, 83, 0.2);">
+                                    <strong>Resumen de la operación:</strong><br>
+                                    • <strong>Tabla afectada:</strong> ${tablaActual}<br>
+                                    • <strong>Llave Primaria (PK):</strong> ${idMod}<br>
+                                    • <strong>Campo modificado:</strong> ${campoSeleccionado.replace('_', ' ')}<br>
+                                    • <strong>Valor anterior:</strong> <span style="color: var(--text-muted); text-decoration: line-through;">${valorAnterior || 'Ninguno'}</span><br>
+                                    • <strong>Nuevo valor asignado:</strong> <span style="color: var(--success-color); font-weight: bold;">${nuevoValor}</span>
+                                </div>
+                            `;
+                            mensajeExito.style.display = 'block';
+                            selectCampo.disabled = true;
+                            inputNuevoValor.disabled = true;
+                            btnActualizar.style.display = 'none';
+                            btnOtraModificacion.style.display = 'block';
+                        } else {
+                            mensajeError.textContent = data.error || 'No se pudo actualizar el registro.';
+                            mensajeError.style.display = 'block';
+                            btnActualizar.disabled = false;
+                        }
+                    } catch (error) {
+                        mensajeError.textContent = 'Ocurrió un error de conexión al intentar actualizar.';
+                        mensajeError.style.display = 'block';
+                        btnActualizar.disabled = false;
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

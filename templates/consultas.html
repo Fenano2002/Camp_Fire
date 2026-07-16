@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FJKDEV | Consultas</title>
+    <link href="../static/assets/dashboard.css" rel="stylesheet">
+</head>
+<body class="page-enter">
+    <div class="blobs-bg">
+        <img src="../static/assets/img/blob.svg" alt="blob" class="blob-bg blob-bg--1">
+        <img src="../static/assets/img/blob.svg" alt="blob" class="blob-bg blob-bg--2">
+    </div>
+
+    <nav class="topbar">
+        <div class="logo-section">
+            <img src="../static/assets/img/Logo_Practica.png" alt="FJKDEV" class="nav-logo">
+            <h2>Sistema de Gestión</h2>
+        </div>
+        <div class="user-info">
+            <span>Usuario: {{ nombre }}</span>
+            <a href="{{ url_for('logout') }}" class="logout-btn">Cerrar Sesión</a>
+        </div>
+    </nav>
+
+    <div class="dashboard-container">
+        <main class="main-content">
+            <div class="header-container-flex">
+                <div class="header-content">
+                    <h1 id="titulo-gestion">Consultas de Registro: {{ tabla }}</h1>
+                    <p id="subtitulo-gestion">Ingrese el término de búsqueda para filtrar la información de forma general sobre la tabla seleccionada.</p>
+                </div>
+                <button type="button" class="menu-back-btn hidden" id="btn-regresar-menu">
+                    <span class="back-icon">&#8592;</span> Volver al Menú Panel
+                </button>
+            </div>
+
+            <div id="hub-view" class="hub-grid">
+                <div class="table-card" data-tabla="Clientes">
+                    <div class="icon-placeholder">👥</div>
+                    <h3>Clientes</h3>
+                </div>
+                <div class="table-card" data-tabla="Asociaciones">
+                    <div class="icon-placeholder">🏢</div>
+                    <h3>Asociaciones</h3>
+                </div>
+                <div class="table-card" data-tabla="Colonias">
+                    <div class="icon-placeholder">📍</div>
+                    <h3>Colonias</h3>
+                </div>
+                <div class="table-card" data-tabla="Actividades">
+                    <div class="icon-placeholder">📅</div>
+                    <h3>Actividades</h3>
+                </div>
+                <div class="table-card" data-tabla="Líderes">
+                    <div class="icon-placeholder">👑</div>
+                    <h3>Líderes</h3>
+                </div>
+                <div class="table-card" data-tabla="Certificaciones">
+                    <div class="icon-placeholder">📜</div>
+                    <h3>Certificaciones</h3>
+                </div>
+                <div class="table-card" data-tabla="Campamentos">
+                    <div class="icon-placeholder">⛺</div>
+                    <h3>Campamentos</h3>
+                </div>
+                <div class="table-card" data-tabla="Juegos">
+                    <div class="icon-placeholder">🎮</div>
+                    <h3>Juegos</h3>
+                </div>
+                <div class="table-card" data-tabla="Deportes">
+                    <div class="icon-placeholder">⚽</div>
+                    <h3>Deportes</h3>
+                </div>
+                <div class="table-card" data-tabla="Competencias">
+                    <div class="icon-placeholder">🏆</div>
+                    <h3>Competencias</h3>
+                </div>
+                <div class="table-card" data-tabla="Accesorios">
+                    <div class="icon-placeholder">🎒</div>
+                    <h3>Accesorios</h3>
+                </div>
+            </div>
+
+            <div id="form-view" class="hidden">
+                <form class="crud-form" id="form-consulta" onsubmit="return false;">
+                    <div class="form-grid">
+                        <div class="input-group">
+                            <input type="text" id="termino-busqueda" name="termino" class="input-field" placeholder=" " autocomplete="off">
+                            <label for="termino-busqueda" class="floating-label">Término de búsqueda...</label>
+                        </div>
+                    </div>
+
+                    <div class="form-actions" style="margin-top: 10px;">
+                        <button type="button" class="cancel-btn" id="btn-cancelar">Regresar</button>
+                    </div>
+                </form>
+
+                <div class="table-container" id="contenedor-tabla" style="display: none; margin-top: 24px;">
+                    <table class="data-table" id="tabla-resultados">
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const params = new URLSearchParams(window.location.search);
+            const tieneParametroTabla = params.has('tabla');
+            const tablaActual = params.get('tabla') || '';
+            
+            const hubView = document.getElementById('hub-view');
+            const formView = document.getElementById('form-view');
+            const tituloGestion = document.getElementById('titulo-gestion');
+            const subtituloGestion = document.getElementById('subtitulo-gestion');
+            const btnRegresarMenu = document.getElementById('btn-regresar-menu');
+            
+            const tarjetasHub = document.querySelectorAll('.table-card');
+
+            const inputBusqueda = document.getElementById('termino-busqueda');
+            const formConsulta = document.getElementById('form-consulta');
+            const contenedorTabla = document.getElementById('contenedor-tabla');
+            const tablaResultados = document.getElementById('tabla-resultados');
+
+            if (tieneParametroTabla && tablaActual) {
+                hubView.classList.add('hidden');
+                formView.classList.remove('hidden');
+                btnRegresarMenu.classList.add('hidden');
+            } else {
+                hubView.classList.remove('hidden');
+                formView.classList.add('hidden');
+                btnRegresarMenu.classList.remove('hidden');
+                tituloGestion.textContent = 'Consultas del Sistema';
+                subtituloGestion.textContent = 'Seleccione la tabla en la que desea consultar información general.';
+            }
+
+            const navegarATabla = (nombreTabla) => {
+                document.body.classList.remove('page-enter');
+                document.body.classList.add('page-leave');
+                setTimeout(() => {
+                    window.location.href = `/consultas?tabla=${nombreTabla}`;
+                }, 400);
+            };
+
+            tarjetasHub.forEach(tarjeta => {
+                tarjeta.addEventListener('click', function() {
+                    navegarATabla(this.getAttribute('data-tabla'));
+                });
+            });
+
+            if (btnRegresarMenu) {
+                btnRegresarMenu.addEventListener('click', () => {
+                    document.body.classList.remove('page-enter');
+                    document.body.classList.add('page-leave');
+                    setTimeout(() => {
+                        window.location.href = '/';
+                    }, 400);
+                });
+            }
+
+            const btnCancelar = document.getElementById('btn-cancelar');
+            if (btnCancelar) {
+                btnCancelar.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    document.body.classList.remove('page-enter');
+                    document.body.classList.add('page-leave');
+                    setTimeout(() => {
+                        window.location.href = '/consultas';
+                    }, 400);
+                });
+            }
+
+            const logoutBtn = document.querySelector('.logout-btn');
+            logoutBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                const url = this.getAttribute('href');
+                document.body.classList.remove('page-enter');
+                document.body.classList.add('page-leave');
+                setTimeout(() => {
+                    window.location.href = url;
+                }, 400);
+            });
+
+            if (inputBusqueda) {
+                inputBusqueda.addEventListener('input', async () => {
+                    const termino = inputBusqueda.value.trim();
+                    
+                    if (termino === '') {
+                        contenedorTabla.style.display = 'none';
+                        tablaResultados.innerHTML = '';
+                        return;
+                    }
+                    
+                    try {
+                        const response = await fetch('/api/buscar', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                tabla: tablaActual,
+                                termino: termino
+                            })
+                        });
+
+                        const data = await response.json();
+                        contenedorTabla.style.display = 'block';
+
+                        if (data.columnas && data.columnas.length > 0 && data.registros && data.registros.length > 0) {
+                            let thead = '<thead><tr>';
+                            data.columnas.forEach(col => {
+                                thead += `<th>${col.replace('_', ' ')}</th>`;
+                            });
+                            thead += '</tr></thead>';
+
+                            let tbody = '<tbody>';
+                            data.registros.forEach(reg => {
+                                tbody += '<tr>';
+                                data.columnas.forEach(col => {
+                                    tbody += `<td>${reg[col]}</td>`;
+                                });
+                                tbody += '</tr>';
+                            });
+                            tbody += '</tbody>';
+
+                            tablaResultados.innerHTML = thead + tbody;
+                        } else {
+                            tablaResultados.innerHTML = '<tbody><tr><td style="text-align: center; padding: 24px; color: var(--text-muted);">No se encontraron registros coincidentes en ninguna columna.</td></tr></tbody>';
+                        }
+                    } catch (error) {
+                        tablaResultados.innerHTML = '';
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

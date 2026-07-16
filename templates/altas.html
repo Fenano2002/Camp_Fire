@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FJKDEV | Altas</title>
+    <link href="../static/assets/dashboard.css" rel="stylesheet">
+</head>
+<body class="page-enter">
+    <div class="blobs-bg">
+        <img src="../static/assets/img/blob.svg" alt="blob" class="blob-bg blob-bg--1">
+        <img src="../static/assets/img/blob.svg" alt="blob" class="blob-bg blob-bg--2">
+    </div>
+
+    <nav class="topbar">
+        <div class="logo-section">
+            <img src="../static/assets/img/Logo_Practica.png" alt="FJKDEV" class="nav-logo">
+            <h2>Sistema de Gestión</h2>
+        </div>
+        <div class="user-info">
+            <span>Usuario: {{ nombre }}</span>
+            <a href="{{ url_for('logout') }}" class="logout-btn">Cerrar Sesión</a>
+        </div>
+    </nav>
+
+    <div class="dashboard-container">
+        <main class="main-content">
+            <div class="header-container-flex">
+                <div class="header-content">
+                    <h1 id="titulo-gestion">Nuevo Registro: {{ tabla }}</h1>
+                    <p id="subtitulo-gestion">Complete la información solicitada para dar de alta un nuevo elemento. La PK se generará y asigará automáticamente por el servidor.</p>
+                </div>
+                <button type="button" class="menu-back-btn hidden" id="btn-regresar-menu">
+                    <span class="back-icon">&#8592;</span> Volver al Menú Panel
+                </button>
+            </div>
+
+            <div id="hub-view" class="hub-grid">
+                <div class="table-card" data-tabla="Clientes">
+                    <div class="icon-placeholder">👥</div>
+                    <h3>Clientes</h3>
+                </div>
+                <div class="table-card" data-tabla="Asociaciones">
+                    <div class="icon-placeholder">🏢</div>
+                    <h3>Asociaciones</h3>
+                </div>
+                <div class="table-card" data-tabla="Colonias">
+                    <div class="icon-placeholder">📍</div>
+                    <h3>Colonias</h3>
+                </div>
+                <div class="table-card" data-tabla="Actividades">
+                    <div class="icon-placeholder">📅</div>
+                    <h3>Actividades</h3>
+                </div>
+                <div class="table-card" data-tabla="Líderes">
+                    <div class="icon-placeholder">👑</div>
+                    <h3>Líderes</h3>
+                </div>
+                <div class="table-card" data-tabla="Certificaciones">
+                    <div class="icon-placeholder">📜</div>
+                    <h3>Certificaciones</h3>
+                </div>
+                <div class="table-card" data-tabla="Campamentos">
+                    <div class="icon-placeholder">⛺</div>
+                    <h3>Campamentos</h3>
+                </div>
+                <div class="table-card" data-tabla="Juegos">
+                    <div class="icon-placeholder">🎮</div>
+                    <h3>Juegos</h3>
+                </div>
+                <div class="table-card" data-tabla="Deportes">
+                    <div class="icon-placeholder">⚽</div>
+                    <h3>Deportes</h3>
+                </div>
+                <div class="table-card" data-tabla="Competencias">
+                    <div class="icon-placeholder">🏆</div>
+                    <h3>Competencias</h3>
+                </div>
+                <div class="table-card" data-tabla="Accesorios">
+                    <div class="icon-placeholder">🎒</div>
+                    <h3>Accesorios</h3>
+                </div>
+            </div>
+
+            <div id="form-view" class="hidden">
+                {% if error %}
+                <div style="margin-bottom: 20px; padding: 16px; background: #fff5f5; border: 1px solid var(--error-color); color: var(--error-color); border-radius: 8px; font-weight: 600;">
+                    {{ error }}
+                </div>
+                {% endif %}
+
+                {% if exito %}
+                <div style="margin-bottom: 20px; padding: 16px; background: rgba(0, 200, 83, 0.1); border: 1px solid var(--success-color); color: var(--success-color); border-radius: 8px; font-weight: 600;">
+                    {{ exito }}
+                </div>
+                {% endif %}
+
+                <form action="/altas?tabla={{ tabla }}" method="POST" class="crud-form" id="form-alta">
+                    <div class="form-grid">
+                        {% for col in columnas_insert %}
+                        <div class="input-group">
+                            {% if tipos_input[col] == 'select' %}
+                            <select id="{{ col }}" name="{{ col }}" class="input-field" required style="background: transparent; appearance: none; -webkit-appearance: none;">
+                                <option value="" disabled selected hidden></option>
+                                {% for opcion in fk_options[col] %}
+                                <option value="{{ opcion.id }}">{{ opcion.desc }}</option>
+                                {% endfor %}
+                            </select>
+                            {% else %}
+                            <input type="text" id="{{ col }}" name="{{ col }}" class="input-field" placeholder=" " required autocomplete="off">
+                            {% endif %}
+                            <label for="{{ col }}" class="floating-label">{{ col.replace('_', ' ') }}</label>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="cancel-btn" id="btn-cancelar">Cancelar</button>
+                        <button type="submit" class="submit-btn">Guardar Registro</button>
+                    </div>
+                </form>
+
+                {% if registros %}
+                <div class="header-content" style="margin-top: 40px; margin-bottom: 16px;">
+                    <h2 style="font-size: 20px; color: var(--text-main);">Último Registro Ingresado</h2>
+                </div>
+                
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                {% for col in columnas %}
+                                <th>{{ col }}</th>
+                                {% endfor %}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for reg in registros %}
+                            <tr>
+                                {% for col in columnas %}
+                                <td>{{ reg[col] }}</td>
+                                {% endfor %}
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% endif %}
+            </div>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const params = new URLSearchParams(window.location.search);
+            const tieneParametroTabla = params.has('tabla');
+            const tablaActual = params.get('tabla') || '';
+            
+            const hubView = document.getElementById('hub-view');
+            const formView = document.getElementById('form-view');
+            const tituloGestion = document.getElementById('titulo-gestion');
+            const subtituloGestion = document.getElementById('subtitulo-gestion');
+            const btnRegresarMenu = document.getElementById('btn-regresar-menu');
+            
+            const tarjetasHub = document.querySelectorAll('.table-card');
+
+            if (tieneParametroTabla && tablaActual) {
+                hubView.classList.add('hidden');
+                formView.classList.remove('hidden');
+                btnRegresarMenu.classList.add('hidden');
+            } else {
+                hubView.classList.remove('hidden');
+                formView.classList.add('hidden');
+                btnRegresarMenu.classList.remove('hidden');
+                tituloGestion.textContent = 'Altas del Sistema';
+                subtituloGestion.textContent = 'Seleccione la tabla en la que desea registrar un nuevo elemento.';
+            }
+
+            const navegarATabla = (nombreTabla) => {
+                document.body.classList.remove('page-enter');
+                document.body.classList.add('page-leave');
+                setTimeout(() => {
+                    window.location.href = `/altas?tabla=${nombreTabla}`;
+                }, 400);
+            };
+
+            tarjetasHub.forEach(tarjeta => {
+                tarjeta.addEventListener('click', function() {
+                    navegarATabla(this.getAttribute('data-tabla'));
+                });
+            });
+
+            if (btnRegresarMenu) {
+                btnRegresarMenu.addEventListener('click', () => {
+                    document.body.classList.remove('page-enter');
+                    document.body.classList.add('page-leave');
+                    setTimeout(() => {
+                        window.location.href = '/';
+                    }, 400);
+                });
+            }
+
+            const btnCancelar = document.getElementById('btn-cancelar');
+            if (btnCancelar) {
+                btnCancelar.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    document.body.classList.remove('page-enter');
+                    document.body.classList.add('page-leave');
+                    setTimeout(() => {
+                        window.location.href = '/altas';
+                    }, 400);
+                });
+            }
+
+            const logoutBtn = document.querySelector('.logout-btn');
+            logoutBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                const url = this.getAttribute('href');
+                document.body.classList.remove('page-enter');
+                document.body.classList.add('page-leave');
+                setTimeout(() => {
+                    window.location.href = url;
+                }, 400);
+            });
+
+            const formAlta = document.getElementById('form-alta');
+            if (formAlta) {
+                formAlta.addEventListener('submit', function(e) {
+                    const inputs = formAlta.querySelectorAll('.input-field');
+                    let valid = true;
+                    let errorMessage = 'Todos los campos son obligatorios.\n';
+                    
+                    inputs.forEach(input => {
+                        const value = input.value.trim();
+                        
+                        if (input.hasAttribute('name') && value === '') {
+                            valid = false;
+                            input.style.borderColor = 'var(--error-color)';
+                        } else {
+                            input.style.borderColor = 'var(--border-color)';
+                        }
+                    });
+
+                    if (!valid) {
+                        e.preventDefault();
+                        alert(errorMessage);
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

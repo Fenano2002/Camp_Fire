@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FJKDEV | Panel de Administración</title>
+    <link href="../static/assets/dashboard.css" rel="stylesheet">
+</head>
+<body class="page-enter">
+    <div class="blobs-bg">
+        <img src="../static/assets/img/blob.svg" alt="blob" class="blob-bg blob-bg--1">
+        <img src="../static/assets/img/blob.svg" alt="blob" class="blob-bg blob-bg--2">
+    </div>
+
+    <nav class="topbar">
+        <div class="logo-section">
+            <img src="../static/assets/img/Logo_Practica.png" alt="FJKDEV" class="nav-logo">
+            <h2>Sistema de Gestión</h2>
+        </div>
+        <div class="user-info">
+            <span>Usuario: {{ nombre }}</span>
+            <a href="{{ url_for('logout') }}" class="logout-btn">Cerrar Sesión</a>
+        </div>
+    </nav>
+
+    <div class="dashboard-container">
+        <main class="main-content">
+            <div class="dashboard-header">
+                <h1 id="titulo-gestion">Gestión de Base de Datos</h1>
+                <p>Seleccione la operación que desea realizar en el sistema</p>
+            </div>
+
+            <div class="crud-grid">
+                <div class="crud-card" id="card-altas" onclick="location.href='/altas'">
+                    <div class="icon-wrapper primary">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                    </div>
+                    <h3>Altas</h3>
+                    <p>Registrar nuevos elementos y asignarlos al sistema.</p>
+                </div>
+
+                <div class="crud-card" id="card-consultas" onclick="location.href='/consultas'">
+                    <div class="icon-wrapper success">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
+                    </div>
+                    <h3>Consultar</h3>
+                    <p>Buscar, filtrar y visualizar los registros existentes.</p>
+                </div>
+
+                <div class="crud-card" id="card-modificaciones" onclick="location.href='/modificaciones'">
+                    <div class="icon-wrapper warning">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                        </svg>
+                    </div>
+                    <h3>Modificar</h3>
+                    <p>Actualizar la información de los registros actuales.</p>
+                </div>
+
+                <div class="crud-card" id="card-bajas" onclick="location.href='/bajas'">
+                    <div class="icon-wrapper danger">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="3 6 5 6 21 6"></polyline>
+                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                            <line x1="10" y1="11" x2="10" y2="17"></line>
+                            <line x1="14" y1="11" x2="14" y2="17"></line>
+                        </svg>
+                    </div>
+                    <h3>Bajas</h3>
+                    <p>Eliminar registros del sistema de forma permanente.</p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const logoutBtn = document.querySelector('.logout-btn');
+            logoutBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                const url = this.getAttribute('href');
+                document.body.classList.remove('page-enter');
+                document.body.classList.add('page-leave');
+                setTimeout(() => {
+                    window.location.href = url;
+                }, 400);
+            });
+        });
+    </script>
+</body>
+</html>
