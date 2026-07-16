@@ -37,12 +37,12 @@ cd Camp_Fire
 
 2.Crear e iniciar un entorno virtual:
 
--En Windows:
+* **En Windows:
 
 python -m venv venv
 venv\Scripts\activate
 
--En macOS/Linux:
+* **En macOS/Linux:
 
 python3 -m venv venv
 source venv/bin/activate
