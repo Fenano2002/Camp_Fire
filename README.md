@@ -21,7 +21,6 @@ Este proyecto consiste en una aplicación web de gestión integral diseñada par
 
 ## Arquitectura del Proyecto
 
-```text
 ├── static/          # Archivos CSS y JavaScript
 ├── templates/       # Vistas HTML (Login, Dashboard, Altas, Consultas, etc.)
 ├── .gitignore       # Exclusiones de Git
