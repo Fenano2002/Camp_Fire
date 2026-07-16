@@ -21,21 +21,21 @@ Este proyecto consiste en una aplicación web de gestión integral diseñada par
 
 ## Arquitectura del Proyecto
 
-├── static/          # Archivos CSS y JavaScript
-├── templates/       # Vistas HTML (Login, Dashboard, Altas, Consultas, etc.)
-├── .gitignore       # Exclusiones de Git
-├── app.py           # Servidor backend y lógica de rutas de Flask
-├── README.md        # Documentación del proyecto
+├── static/          # Archivos CSS y JavaScript                                                                                                                                                                 . 
+├── templates/       # Vistas HTML (Login, Dashboard, Altas, Consultas, etc.)                                                                                                                                    .
+├── .gitignore       # Exclusiones de Git                                                                                                                                                                        .
+├── app.py           # Servidor backend y lógica de rutas de Flask                                                                                                                                               .
+├── README.md        # Documentación del proyecto                                                                                                                                                                .
 └── requirements.txt # Dependencias del sistema
 
 ## Configuración e Instalación
 
-1.Clonar el repositorio:
+1. Clonar el repositorio:
 
 git clone [https://github.com/Fenano2002/Camp-Fire.git](https://github.com/Fenano2002/Camp-Fire.git)
 cd Camp_Fire
 
-2.Crear e iniciar un entorno virtual:
+2. Crear e iniciar un entorno virtual:
 
 * **En Windows:
 
@@ -47,11 +47,11 @@ venv\Scripts\activate
 python3 -m venv venv
 source venv/bin/activate
 
-3.Instalar las dependencias necesarias:
+3. Instalar las dependencias necesarias:
 
 pip install -r requirements.txt
 
-4.Configurar las variables de entorno:
+4. Configurar las variables de entorno:
 Crea un archivo llamado .env en la raíz del proyecto y agrega lo siguiente:
 
 Plaintext
@@ -61,6 +61,6 @@ DB_DATABASE=ProyectoFinal
 DB_DRIVER=ODBC Driver 17 for SQL Server
 PORT=5000
 
-5.Ejecutar la aplicación en modo desarrollo:
+5. Ejecutar la aplicación en modo desarrollo:
 
 python app.py
