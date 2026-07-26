@@ -61,6 +61,8 @@ DB_DATABASE=ProyectoFinal
 DB_DRIVER=ODBC Driver 17 for SQL Server
 PORT=5000
 
-5. Ejecutar la aplicación en modo desarrollo:
+5. Crear la base de datos, tablas y usuario con el archivo SQLQuery1.sql en SQL Server Management Studio
+
+6. Ejecutar la aplicación en modo desarrollo:
 
 python app.py
